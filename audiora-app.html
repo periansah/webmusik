@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Audiora</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#121212;
+    --bg-1:#1a1a1a;
+    --bg-2:#232323;
+    --bg-3:#2c2c2c;
+    --accent:#e8a24c;
+    --accent-2:#5fc9c1;
+    --text:#ffffff;
+    --text-dim:#b3b3b3;
+    --text-dimmer:#7a7a7a;
+    --border:rgba(255,255,255,0.08);
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ height:100%; }
+  body{
+    background:#000;
+    font-family:'Inter',sans-serif;
+    color:var(--text);
+    display:flex;
+    justify-content:center;
+    min-height:100vh;
+  }
+  button{ font-family:inherit; border:none; background:none; color:inherit; cursor:pointer; }
+  ul{ list-style:none; }
+
+  .phone-shell{
+    width:100%;
+    max-width:430px;
+    min-height:100vh;
+    background:var(--bg);
+    position:relative;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+  }
+  @media (min-width:431px){
+    .phone-shell{
+      max-width:412px;
+      min-height:860px;
+      margin:24px 0;
+      border-radius:34px;
+      box-shadow:0 30px 80px rgba(0,0,0,0.6), 0 0 0 8px #0a0a0a, 0 0 0 9px #2a2a2a;
+    }
+  }
+
+  .screens{ flex:1; overflow:hidden; position:relative; }
+  .screen{
+    position:absolute; inset:0;
+    overflow-y:auto;
+    padding: 18px 16px 190px 16px;
+    display:none;
+  }
+  .screen.active{ display:block; }
+  .screen::-webkit-scrollbar{ display:none; }
+
+  /* ---------- Home header ---------- */
+  .home-header{ display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+  .avatar-btn{
+    width:32px; height:32px; border-radius:50%;
+    background:var(--accent); color:#241305; font-weight:700; font-size:14px;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .chip{
+    padding:7px 16px; border-radius:20px; font-size:13.5px; font-weight:600;
+    background:var(--bg-2); color:var(--text); white-space:nowrap;
+  }
+  .chip.active{ background:var(--accent); color:#241305; }
+  .filter-chips{ display:flex; gap:9px; overflow-x:auto; }
+  .filter-chips::-webkit-scrollbar{ display:none; }
+
+  /* ---------- Radio row ---------- */
+  .radio-row{ display:flex; gap:10px; margin-bottom:20px; overflow-x:auto; }
+  .radio-row::-webkit-scrollbar{ display:none; }
+  .radio-card{
+    flex:0 0 auto; width: 165px; height:64px; border-radius:6px;
+    background:var(--bg-2); display:flex; align-items:center; gap:10px; padding-right:10px;
+    overflow:hidden; cursor:pointer;
+  }
+  .radio-art{
+    width:64px; height:64px; flex-shrink:0; position:relative;
+    background: linear-gradient(155deg, var(--accent), #7a4a1c);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .radio-art.alt{ background: linear-gradient(155deg, var(--accent-2), #1c5a54); }
+  .radio-art svg{ opacity:0.85; }
+  .radio-label{ font-size:12.5px; font-weight:600; line-height:1.25; }
+
+  /* ---------- Hero card ---------- */
+  .hero-card{
+    border-radius:10px; overflow:hidden; position:relative;
+    aspect-ratio: 4/3.1; margin-bottom:14px; cursor:pointer;
+    background: linear-gradient(150deg,#2b2320,#171310 55%, #0e0c0a);
+  }
+  .hero-art-fill{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 25% 20%, rgba(232,162,76,0.35), transparent 55%),
+      radial-gradient(circle at 80% 75%, rgba(95,201,193,0.25), transparent 50%),
+      linear-gradient(160deg,#241c17,#100d0b);
+  }
+  .hero-badge{
+    position:absolute; top:12px; left:12px;
+    background:rgba(0,0,0,0.55); color:#fff; font-size:11px; font-weight:600;
+    padding:4px 8px; border-radius:5px; font-variant-numeric:tabular-nums;
+  }
+  .hero-brand{ position:absolute; top:12px; right:14px; font-size:12px; font-weight:700; color:rgba(255,255,255,0.55); letter-spacing:0.04em; }
+  .hero-caption{
+    position:absolute; left:14px; right:56px; bottom:16px;
+    font-family:'Fraunces',serif; font-size:16px; font-weight:600; line-height:1.3;
+    text-shadow:0 2px 10px rgba(0,0,0,0.6);
+  }
+  .hero-play-btn{
+    position:absolute; right:14px; bottom:14px;
+    width:38px; height:38px; border-radius:50%; background:#fff; color:#121212;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .hero-track-bar{ position:absolute; left:0; right:0; bottom:0; height:3px; background:rgba(255,255,255,0.2); }
+  .hero-track-bar::after{
+    content:''; position:absolute; left:0; top:0; bottom:0; width: var(--hero-progress, 22%);
+    background: var(--accent);
+  }
+
+  .hero-meta-row{ display:flex; align-items:center; gap:10px; margin-bottom:26px; }
+  .hero-meta-cover{
+    width:40px; height:40px; border-radius:4px; flex-shrink:0;
+    background: linear-gradient(150deg, var(--bg-3), var(--bg-2));
+  }
+  .hero-meta-text{ flex:1; min-width:0; }
+  .hero-meta-title{ font-size:14px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .hero-meta-sub{ font-size:12.5px; color:var(--text-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .dots-btn{ font-size:18px; color:var(--text-dim); padding:6px; }
+
+  .section-heading{ font-size:19px; font-weight:800; margin-bottom:14px; letter-spacing:-0.01em; }
+
+  /* ---------- Recent list ---------- */
+  .recent-row{
+    display:flex; align-items:center; gap:12px; padding:8px 0; cursor:pointer; border-radius:8px;
+  }
+  .recent-row.playing .recent-title{ color:var(--accent); }
+  .recent-cover{
+    width:48px; height:48px; border-radius:4px; flex-shrink:0; position:relative; overflow:hidden;
+  }
+  .recent-cover .eq{
+    position:absolute; inset:0; background:rgba(0,0,0,0.45); display:none;
+    align-items:flex-end; justify-content:center; gap:2px; padding-bottom:10px;
+  }
+  .recent-row.playing .eq{ display:flex; }
+  .recent-cover .eq span{ width:3px; background:var(--accent); height:4px; border-radius:1px; animation:eqbounce 0.9s ease-in-out infinite; }
+  .recent-cover .eq span:nth-child(2){ animation-delay:-0.6s; }
+  .recent-cover .eq span:nth-child(3){ animation-delay:-0.3s; }
+  @keyframes eqbounce{ 0%,100%{height:3px;} 50%{height:13px;} }
+  .recent-meta{ flex:1; min-width:0; }
+  .recent-title{ font-size:14.5px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .recent-sub{ font-size:12.5px; color:var(--text-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:1px; }
+  .badge-e{ display:inline-flex; width:14px; height:14px; align-items:center; justify-content:center; background:var(--text-dimmer); color:#000; font-size:9px; font-weight:800; border-radius:2px; margin-right:4px; }
+
+  /* ---------- Search screen ---------- */
+  .search-box{
+    display:flex; align-items:center; gap:8px; background:var(--bg-2); border-radius:8px;
+    padding:11px 12px; margin-bottom:20px;
+  }
+  .search-box input{
+    background:none; border:none; outline:none; color:var(--text); font-size:14.5px; flex:1; font-family:inherit;
+  }
+  .search-box input::placeholder{ color:var(--text-dimmer); }
+  .search-results .recent-row{ padding:9px 4px; }
+
+  /* ---------- Library screen ---------- */
+  .lib-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+  .lib-title{ font-size:22px; font-weight:800; }
+  .add-panel{
+    background:var(--bg-1); border:1px solid var(--border); border-radius:12px; padding:14px; margin-bottom:20px;
+  }
+  .add-panel label{ font-size:11.5px; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-dimmer); display:block; margin-bottom:8px; }
+  .add-panel input[type=text]{
+    width:100%; background:var(--bg-2); border:1px solid var(--border); color:var(--text);
+    padding:10px 11px; border-radius:8px; font-size:13px; font-family:inherit; outline:none; margin-bottom:8px;
+  }
+  .add-panel input[type=text]:focus{ border-color:var(--accent); }
+  .lib-btn{
+    width:100%; background:var(--bg-3); border:1px solid var(--border); color:var(--text);
+    font-size:13px; font-weight:600; padding:10px; border-radius:8px; margin-bottom:8px;
+  }
+  .lib-btn.primary{ background:var(--accent); color:#241305; border:none; }
+  .lib-btn:last-child{ margin-bottom:0; }
+  #libFileInput{ display:none; }
+  .lib-track-row{ display:flex; align-items:center; gap:12px; padding:10px 4px; border-radius:8px; }
+  .lib-remove{ color:var(--text-dimmer); font-size:15px; padding:6px; }
+  .lib-remove:hover{ color:#e0554a; }
+
+  /* ---------- Mini player ---------- */
+  .mini-player{
+    position:absolute; left:10px; right:10px; bottom:70px;
+    background:linear-gradient(120deg,#3a2e1c,#241f30);
+    border-radius:8px; padding:8px 8px 8px 10px;
+    display:flex; align-items:center; gap:10px;
+    box-shadow:0 8px 24px rgba(0,0,0,0.4);
+    z-index:20;
+  }
+  .mini-cover{ width:34px; height:34px; border-radius:4px; background:linear-gradient(150deg,var(--accent),#7a4a1c); flex-shrink:0; }
+  .mini-meta{ flex:1; min-width:0; }
+  .mini-title{ font-size:12.5px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .mini-artist{ font-size:11px; color:rgba(255,255,255,0.65); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .mini-btn{ padding:6px; color:#fff; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+  .mini-progress{ position:absolute; left:0; right:0; bottom:0; height:2px; background:rgba(255,255,255,0.15); border-radius:0 0 8px 8px; overflow:hidden;}
+  .mini-progress::after{ content:''; position:absolute; left:0; top:0; bottom:0; width:var(--mini-progress,0%); background:var(--accent); }
+
+  /* ---------- Bottom nav ---------- */
+  .bottom-nav{
+    position:absolute; left:0; right:0; bottom:0;
+    background:rgba(18,18,18,0.97); border-top:1px solid var(--border);
+    display:flex; padding:8px 4px 18px 4px; z-index:20;
+  }
+  .nav-item{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
+    font-size:10.5px; color:var(--text-dimmer); font-weight:500; padding:4px 0;
+  }
+  .nav-item.active{ color:var(--text); }
+  .nav-item.active svg{ color:var(--text); }
+  .nav-item svg{ color:var(--text-dimmer); }
+  .nav-item.active .nav-underline{ display:block; }
+
+  /* ---------- Profile menu overlay ---------- */
+  .menu-overlay{
+    position:absolute; inset:0; background:rgba(0,0,0,0.55);
+    display:none; align-items:flex-start; justify-content:flex-start; z-index:50;
+  }
+  .menu-overlay.open{ display:flex; }
+  .menu-panel{
+    width:82%; max-width:320px; height:100%; background:#191919;
+    padding:22px 20px; overflow-y:auto;
+    animation: slideIn .2s ease;
+  }
+  @keyframes slideIn{ from{ transform:translateX(-16px); opacity:0.4; } to{ transform:translateX(0); opacity:1; } }
+  .menu-profile-row{ display:flex; align-items:center; gap:12px; padding-bottom:18px; margin-bottom:14px; border-bottom:1px solid var(--border); }
+  .menu-avatar{ width:46px; height:46px; border-radius:50%; background:var(--accent); color:#241305; font-weight:700; font-size:19px; display:flex; align-items:center; justify-content:center; }
+  .menu-name{ font-size:17px; font-weight:700; }
+  .menu-sub{ font-size:12.5px; color:var(--text-dim); margin-top:1px; }
+  .menu-row{
+    display:flex; align-items:center; gap:16px; padding:13px 2px; font-size:14.5px; font-weight:500; width:100%; text-align:left;
+  }
+  .menu-row svg{ flex-shrink:0; color:var(--text); }
+  .menu-icons-row{ display:flex; gap:26px; margin:14px 2px 18px 2px; }
+  .menu-icon-item{ display:flex; flex-direction:column; align-items:center; gap:6px; font-size:12px; text-align:center; }
+  .menu-icon-circle{ width:52px; height:52px; border-radius:50%; background:var(--bg-2); display:flex; align-items:center; justify-content:center; }
+  .menu-msg-title{ font-size:16px; font-weight:800; margin-bottom:8px; }
+  .menu-msg-desc{ font-size:12.5px; color:var(--text-dim); line-height:1.6; margin-bottom:14px; }
+  .menu-close{
+    margin-top:22px; width:100%; padding:11px; border-radius:20px; background:var(--bg-2); font-size:13px; font-weight:600;
+  }
+  .menu-logout{ color:#e0554a; }
+
+  /* ---------- Auth ---------- */
+  .auth-screen{
+    width:100%; max-width:430px; min-height:100vh;
+    background: radial-gradient(circle at 30% 0%, #1c1712 0%, #0c0c0c 55%);
+    display:flex; flex-direction:column; justify-content:center;
+    padding: 32px 26px;
+  }
+  @media (min-width:431px){
+    .auth-screen{ max-width:412px; min-height:860px; margin:24px 0; border-radius:34px; box-shadow:0 30px 80px rgba(0,0,0,0.6), 0 0 0 8px #0a0a0a, 0 0 0 9px #2a2a2a; }
+  }
+  .auth-logo-row{ display:flex; align-items:center; gap:10px; margin-bottom:34px; }
+  .auth-logo-mark{
+    width:36px; height:36px; border-radius:9px;
+    background: linear-gradient(155deg, var(--accent), #b5652b);
+    position:relative; flex-shrink:0;
+  }
+  .auth-logo-mark::before, .auth-logo-mark::after{
+    content:''; position:absolute; background:#1a1206; border-radius:50%;
+    width:8px; height:8px; top:50%; transform:translateY(-50%);
+  }
+  .auth-logo-mark::before{ left:6px; } .auth-logo-mark::after{ right:6px; }
+  .auth-logo-name{ font-family:'Fraunces',serif; font-weight:700; font-size:21px; }
+
+  .auth-tabs{ display:flex; gap:6px; background:var(--bg-2); border-radius:11px; padding:4px; margin-bottom:26px; }
+  .auth-tab{ flex:1; text-align:center; padding:9px 0; border-radius:8px; font-size:13.5px; font-weight:600; color:var(--text-dim); }
+  .auth-tab.active{ background:var(--accent); color:#241305; }
+
+  .auth-title{ font-family:'Fraunces',serif; font-weight:600; font-size:24px; margin-bottom:6px; }
+  .auth-sub{ font-size:13px; color:var(--text-dim); margin-bottom:22px; line-height:1.6; }
+
+  .auth-field{ margin-bottom:14px; }
+  .auth-field label{ display:block; font-size:11.5px; text-transform:uppercase; letter-spacing:0.07em; color:var(--text-dimmer); margin-bottom:7px; }
+  .auth-input{
+    width:100%; background:var(--bg-2); border:1px solid var(--border); color:var(--text);
+    padding:12px 13px; border-radius:9px; font-size:14px; font-family:inherit; outline:none;
+  }
+  .auth-input:focus{ border-color:var(--accent); }
+  .auth-input::placeholder{ color:var(--text-dimmer); }
+
+  .auth-error{
+    background:rgba(224,85,74,0.12); border:1px solid rgba(224,85,74,0.35); color:#f39089;
+    font-size:12.5px; padding:9px 11px; border-radius:8px; margin-bottom:14px; display:none;
+  }
+  .auth-error.show{ display:block; }
+
+  .auth-submit{
+    width:100%; background:var(--accent); color:#241305; font-weight:700; font-size:14.5px;
+    padding:13px; border-radius:24px; margin-top:6px;
+  }
+  .auth-submit:active{ transform:scale(0.985); }
+  .auth-switch{ text-align:center; font-size:12.5px; color:var(--text-dim); margin-top:20px; }
+  .auth-switch button{ color:var(--accent); font-weight:600; }
+
+  .auth-hint{ font-size:11.5px; color:var(--text-dimmer); margin-top:22px; line-height:1.6; text-align:center; }
+</style>
+</head>
+<body>
+
+<!-- ============ AUTH ============ -->
+<div class="auth-screen" id="authScreen">
+  <div class="auth-logo-row">
+    <div class="auth-logo-mark"></div>
+    <div class="auth-logo-name">Audiora</div>
+  </div>
+
+  <div class="auth-tabs">
+    <button class="auth-tab active" id="tabLogin">Masuk</button>
+    <button class="auth-tab" id="tabRegister">Daftar</button>
+  </div>
+
+  <!-- Login form -->
+  <form id="loginForm">
+    <div class="auth-title">Selamat datang kembali</div>
+    <div class="auth-sub">Masuk untuk lanjut dengarkan trekmu.</div>
+    <div class="auth-error" id="loginError"></div>
+    <div class="auth-field">
+      <label>Email</label>
+      <input class="auth-input" type="email" id="loginEmail" placeholder="nama@email.com" required autocomplete="username">
+    </div>
+    <div class="auth-field">
+      <label>Kata sandi</label>
+      <input class="auth-input" type="password" id="loginPassword" placeholder="Kata sandi" required autocomplete="current-password">
+    </div>
+    <button type="submit" class="auth-submit">Masuk</button>
+    <div class="auth-switch">Belum punya akun? <button type="button" id="goRegister">Daftar di sini</button></div>
+  </form>
+
+  <!-- Register form -->
+  <form id="registerForm" style="display:none;">
+    <div class="auth-title">Buat akun</div>
+    <div class="auth-sub">Gratis, dan trekmu tersimpan untuk kunjungan berikutnya.</div>
+    <div class="auth-error" id="registerError"></div>
+    <div class="auth-field">
+      <label>Nama</label>
+      <input class="auth-input" type="text" id="regName" placeholder="Nama kamu" required autocomplete="name">
+    </div>
+    <div class="auth-field">
+      <label>Email</label>
+      <input class="auth-input" type="email" id="regEmail" placeholder="nama@email.com" required autocomplete="username">
+    </div>
+    <div class="auth-field">
+      <label>Kata sandi</label>
+      <input class="auth-input" type="password" id="regPassword" placeholder="Minimal 6 karakter" required autocomplete="new-password">
+    </div>
+    <div class="auth-field">
+      <label>Konfirmasi kata sandi</label>
+      <input class="auth-input" type="password" id="regPassword2" placeholder="Ulangi kata sandi" required autocomplete="new-password">
+    </div>
+    <button type="submit" class="auth-submit">Daftar</button>
+    <div class="auth-switch">Sudah punya akun? <button type="button" id="goLogin">Masuk di sini</button></div>
+  </form>
+
+  <div class="auth-hint">Masuk & daftar diproses lewat Supabase Auth.</div>
+</div>
+
+<div class="phone-shell" id="phoneShell" style="display:none;">
+  <div class="screens">
+
+    <!-- ============ HOME ============ -->
+    <section class="screen active" id="screen-home">
+      <div class="home-header">
+        <button class="avatar-btn" id="avatarBtn">M</button>
+        <div class="filter-chips">
+          <button class="chip active">Semua</button>
+          <button class="chip">Musik</button>
+          <button class="chip">Podcast</button>
+        </div>
+      </div>
+
+      <div class="radio-row">
+        <div class="radio-card" id="radioCard0">
+          <div class="radio-art"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg></div>
+          <div class="radio-label">Radio<br>Reel Satu</div>
+        </div>
+        <div class="radio-card" id="radioCard1">
+          <div class="radio-art alt"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg></div>
+          <div class="radio-label">Radio<br>Reel Tiga</div>
+        </div>
+      </div>
+
+      <div class="hero-card" id="heroCard">
+        <div class="hero-art-fill"></div>
+        <div class="hero-badge" id="heroBadgeTime">3:45</div>
+        <div class="hero-brand">AUDIORA</div>
+        <div class="hero-caption" id="heroCaption">Trek pilihan untuk sore ini</div>
+        <button class="hero-play-btn" id="heroPlayBtn">
+          <svg id="heroPlayIcon" width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <div class="hero-track-bar" id="heroTrackBar"></div>
+      </div>
+
+      <div class="hero-meta-row">
+        <div class="hero-meta-cover" id="heroMetaCover"></div>
+        <div class="hero-meta-text">
+          <div class="hero-meta-title" id="heroMetaTitle">Belum ada trek</div>
+          <div class="hero-meta-sub" id="heroMetaSub">Ketuk untuk mulai memutar</div>
+        </div>
+        <button class="dots-btn">⋮</button>
+      </div>
+
+      <h3 class="section-heading">Sering kamu putar baru-baru ini</h3>
+      <ul id="recentList"></ul>
+    </section>
+
+    <!-- ============ SEARCH ============ -->
+    <section class="screen" id="screen-search">
+      <h3 class="section-heading" style="margin-bottom:16px;">Cari</h3>
+      <div class="search-box">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#7a7a7a" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="searchInput" placeholder="Cari lagu atau artis">
+      </div>
+      <ul class="search-results" id="searchResults"></ul>
+    </section>
+
+    <!-- ============ LIBRARY ============ -->
+    <section class="screen" id="screen-library">
+      <div class="lib-header">
+        <div class="lib-title">Koleksi Kamu</div>
+        <button class="avatar-btn" style="width:28px;height:28px;font-size:12px;" id="libAvatarBtn">M</button>
+      </div>
+
+      <div class="add-panel">
+        <label>Tambah lagu</label>
+        <input type="text" id="urlInput" placeholder="Tempel URL audio (.mp3)…">
+        <button class="lib-btn primary" id="addUrlBtn">+ Tambah dari URL</button>
+        <button class="lib-btn" id="uploadBtn">↑ Unggah file dari perangkat</button>
+        <input type="file" id="libFileInput" accept="audio/*" multiple>
+      </div>
+
+      <h3 class="section-heading" style="font-size:16px;">Semua trek</h3>
+      <ul id="libraryList"></ul>
+    </section>
+
+    <!-- ============ PREMIUM (placeholder) ============ -->
+    <section class="screen" id="screen-premium">
+      <h3 class="section-heading">Premium</h3>
+      <p style="color:var(--text-dim); font-size:13.5px; line-height:1.7;">Ini demo antarmuka, jadi tidak ada langganan sungguhan di sini — cukup nikmati trek yang sudah ada atau tambahkan milikmu sendiri lewat tab Koleksi Kamu.</p>
+    </section>
+
+  </div>
+
+  <!-- Mini player -->
+  <div class="mini-player" id="miniPlayer" style="display:none;">
+    <div class="mini-cover" id="miniCover"></div>
+    <div class="mini-meta">
+      <div class="mini-title" id="miniTitle">—</div>
+      <div class="mini-artist" id="miniArtist">—</div>
+    </div>
+    <button class="mini-btn" id="miniPrevBtn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+    </button>
+    <button class="mini-btn" id="miniPlayBtn">
+      <svg id="miniPlayIcon" width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+    <div class="mini-progress" id="miniProgress"></div>
+  </div>
+
+  <!-- Bottom nav -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-screen="home">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 2 12h3v8h6v-6h2v6h6v-8h3z"/></svg>
+      Home
+    </button>
+    <button class="nav-item" data-screen="search">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      Cari
+    </button>
+    <button class="nav-item" data-screen="library">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h4v18H3zm7 4h4v14h-4zm7-2h4v16h-4z"/></svg>
+      Koleksi Kamu
+    </button>
+    <button class="nav-item" data-screen="premium">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 2 7l10 5 10-5-10-5zm0 8L2 15l10 5 10-5-10-5z" opacity="0"/><path d="M12 6.5 4 10l8 3.5 8-3.5-8-3.5zM4 15l8 3.5L20 15" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+      Premium
+    </button>
+    <button class="nav-item" data-screen="library" id="createNavBtn">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Buat
+    </button>
+  </nav>
+
+  <!-- Profile menu overlay -->
+  <div class="menu-overlay" id="menuOverlay">
+    <div class="menu-panel">
+      <div class="menu-profile-row">
+        <div class="menu-avatar" id="menuAvatar">M</div>
+        <div>
+          <div class="menu-name" id="menuName">My Bee</div>
+          <div class="menu-sub" id="menuEmail">Lihat profil</div>
+        </div>
+      </div>
+      <button class="menu-row">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Tambah akun
+      </button>
+      <button class="menu-row" id="menuRecentBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        Baru Diputar
+      </button>
+      <button class="menu-row">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>
+        Info Terkini
+      </button>
+      <button class="menu-row">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Pengaturan dan privasi
+      </button>
+
+      <div class="menu-icons-row">
+        <div class="menu-icon-item">
+          <div class="menu-icon-circle">M</div>
+          Aktivitas
+        </div>
+        <div class="menu-icon-item">
+          <div class="menu-icon-circle">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </div>
+          Undang teman-teman
+        </div>
+      </div>
+
+      <div class="menu-msg-title">Pesan</div>
+      <div class="menu-msg-desc">Bagikan trek favoritmu ke teman lewat Audiora.</div>
+
+      <button class="menu-row menu-logout" id="logoutBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Keluar
+      </button>
+
+      <button class="menu-close" id="menuCloseBtn">Tutup</button>
+    </div>
+  </div>
+
+</div>
+
+<audio id="audio"></audio>
+
+<script>
+(function(){
+  let tracks = [];
+  let currentUserId = null;
+  let currentIndex = -1;
+  let isPlaying = false;
+
+  const audio = document.getElementById('audio');
+  const $ = id => document.getElementById(id);
+
+  const recentList = $('recentList');
+  const libraryList = $('libraryList');
+  const searchResults = $('searchResults');
+  const miniPlayer = $('miniPlayer');
+  const miniTitle = $('miniTitle');
+  const miniArtist = $('miniArtist');
+  const miniProgress = $('miniProgress');
+  const miniPlayIcon = $('miniPlayIcon');
+  const heroMetaTitle = $('heroMetaTitle');
+  const heroMetaSub = $('heroMetaSub');
+  const heroCaption = $('heroCaption');
+  const heroPlayIcon = $('heroPlayIcon');
+  const heroTrackBar = $('heroTrackBar');
+  const heroBadgeTime = $('heroBadgeTime');
+
+  function fmtTime(s){
+    if(!isFinite(s)||s<0) s=0;
+    const m=Math.floor(s/60), sec=Math.floor(s%60).toString().padStart(2,'0');
+    return `${m}:${sec}`;
+  }
+  function escapeHtml(str){ const d=document.createElement('div'); d.textContent=str; return d.innerHTML; }
+  function gradFor(i){
+    const grads = [
+      'linear-gradient(150deg,#e8a24c,#7a4a1c)',
+      'linear-gradient(150deg,#5fc9c1,#1c5a54)',
+      'linear-gradient(150deg,#c96f9c,#5c1c3f)',
+      'linear-gradient(150deg,#7f9ce8,#25326f)',
+      'linear-gradient(150deg,#d9695f,#5c1c1c)',
+      'linear-gradient(150deg,#a3c96f,#3a5c1c)',
+    ];
+    return grads[i % grads.length];
+  }
+
+  function renderAll(){
+    renderRadioRow();
+    renderRecent();
+    renderLibrary();
+    renderSearch();
+    updateHero();
+    updateMini();
+  }
+
+  function renderRadioRow(){
+    const row = document.querySelector('.radio-row');
+    const c0 = $('radioCard0'), c1 = $('radioCard1');
+    if(tracks.length === 0){ row.style.display = 'none'; return; }
+    row.style.display = 'flex';
+    c0.style.display = 'flex';
+    c0.querySelector('.radio-label').innerHTML = 'Radio<br>' + escapeHtml(tracks[0].title);
+    if(tracks[1]){
+      c1.style.display = 'flex';
+      c1.querySelector('.radio-label').innerHTML = 'Radio<br>' + escapeHtml(tracks[1].title);
+    } else {
+      c1.style.display = 'none';
+    }
+  }
+
+  function renderRecent(){
+    recentList.innerHTML = '';
+    if(tracks.length === 0){
+      recentList.innerHTML = '<p style="color:var(--text-dimmer); font-size:13px; padding:6px 2px;">Belum ada trek. Tambahkan lewat tab <b style="color:var(--text-dim);">Koleksi Kamu</b>.</p>';
+      return;
+    }
+    tracks.forEach((t,i)=>{
+      const li = document.createElement('li');
+      li.className = 'recent-row' + (i===currentIndex && isPlaying ? ' playing' : '');
+      li.innerHTML = `
+        <div class="recent-cover" style="background:${gradFor(i)}">
+          <div class="eq"><span></span><span></span><span></span></div>
+        </div>
+        <div class="recent-meta">
+          <div class="recent-title">${escapeHtml(t.title)}</div>
+          <div class="recent-sub">${escapeHtml(t.artist)}</div>
+        </div>`;
+      li.addEventListener('click', ()=> loadTrack(i, true));
+      recentList.appendChild(li);
+    });
+  }
+
+  function renderLibrary(){
+    libraryList.innerHTML = '';
+    if(tracks.length === 0){
+      libraryList.innerHTML = '<p style="color:var(--text-dimmer); font-size:13px; padding:10px 2px;">Koleksimu masih kosong. Tambahkan trek pertamamu di atas.</p>';
+      return;
+    }
+    tracks.forEach((t,i)=>{
+      const li = document.createElement('li');
+      li.className = 'lib-track-row';
+      li.innerHTML = `
+        <div class="recent-cover" style="width:44px;height:44px;background:${gradFor(i)}">
+          <div class="eq">${i===currentIndex && isPlaying ? '<span></span><span></span><span></span>' : ''}</div>
+        </div>
+        <div class="recent-meta">
+          <div class="recent-title">${escapeHtml(t.title)}</div>
+          <div class="recent-sub">${escapeHtml(t.artist)}</div>
+        </div>
+        <button class="lib-remove" data-idx="${i}">✕</button>`;
+      li.addEventListener('click', (e)=>{
+        if(e.target.closest('.lib-remove')) return;
+        loadTrack(i, true);
+      });
+      li.querySelector('.lib-remove').addEventListener('click', (e)=>{
+        e.stopPropagation();
+        removeTrack(i);
+      });
+      libraryList.appendChild(li);
+    });
+  }
+
+  function renderSearch(){
+    const q = ($('searchInput').value || '').toLowerCase().trim();
+    searchResults.innerHTML = '';
+    const filtered = tracks
+      .map((t,i)=>({...t,i}))
+      .filter(t => !q || t.title.toLowerCase().includes(q) || t.artist.toLowerCase().includes(q));
+    if(filtered.length === 0){
+      searchResults.innerHTML = '<p style="color:var(--text-dimmer); font-size:13px; margin-top:20px;">Tidak ada hasil.</p>';
+      return;
+    }
+    filtered.forEach(t=>{
+      const li = document.createElement('li');
+      li.className = 'recent-row' + (t.i===currentIndex && isPlaying ? ' playing' : '');
+      li.innerHTML = `
+        <div class="recent-cover" style="background:${gradFor(t.i)}"><div class="eq"><span></span><span></span><span></span></div></div>
+        <div class="recent-meta">
+          <div class="recent-title">${escapeHtml(t.title)}</div>
+          <div class="recent-sub">${escapeHtml(t.artist)}</div>
+        </div>`;
+      li.addEventListener('click', ()=> loadTrack(t.i, true));
+      searchResults.appendChild(li);
+    });
+  }
+
+  function updateHero(){
+    if(currentIndex === -1){
+      heroCaption.textContent = 'Trek pilihan untuk sore ini';
+      heroMetaTitle.textContent = 'Belum ada trek';
+      heroMetaSub.textContent = 'Ketuk untuk mulai memutar';
+      heroPlayIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+      heroBadgeTime.textContent = '0:00';
+      heroTrackBar.style.setProperty('--hero-progress','0%');
+      return;
+    }
+    const t = tracks[currentIndex];
+    heroCaption.textContent = t.title;
+    heroMetaTitle.textContent = t.title;
+    heroMetaSub.textContent = t.artist;
+    heroPlayIcon.innerHTML = isPlaying ? '<path d="M6 5h4v14H6zm8 0h4v14h-4z"/>' : '<path d="M8 5v14l11-7z"/>';
+  }
+
+  function updateMini(){
+    if(currentIndex === -1){ miniPlayer.style.display = 'none'; return; }
+    miniPlayer.style.display = 'flex';
+    const t = tracks[currentIndex];
+    miniTitle.textContent = t.title;
+    miniArtist.textContent = t.artist;
+    $('miniCover').style.background = gradFor(currentIndex);
+    miniPlayIcon.innerHTML = isPlaying ? '<path d="M6 5h4v14H6zm8 0h4v14h-4z"/>' : '<path d="M8 5v14l11-7z"/>';
+  }
+
+  function loadTrack(i, autoplay){
+    if(i<0||i>=tracks.length) return;
+    currentIndex = i;
+    audio.src = tracks[i].src;
+    renderAll();
+    if(autoplay) audio.play().catch(()=>{});
+  }
+  function togglePlay(){
+    if(currentIndex===-1){ if(tracks.length) loadTrack(0,true); return; }
+    if(audio.paused) audio.play(); else audio.pause();
+  }
+  function playNext(){ if(!tracks.length) return; loadTrack((currentIndex+1)%tracks.length, true); }
+  function playPrev(){ if(!tracks.length) return; loadTrack((currentIndex-1+tracks.length)%tracks.length, true); }
+
+  audio.addEventListener('play', ()=>{ isPlaying=true; renderAll(); });
+  audio.addEventListener('pause', ()=>{ isPlaying=false; renderAll(); });
+  audio.addEventListener('ended', playNext);
+  audio.addEventListener('timeupdate', ()=>{
+    if(!isFinite(audio.duration)) return;
+    const pct = (audio.currentTime/audio.duration)*100;
+    heroTrackBar.style.setProperty('--hero-progress', pct+'%');
+    miniProgress.style.setProperty('--mini-progress', pct+'%');
+    heroBadgeTime.textContent = fmtTime(audio.duration - audio.currentTime);
+  });
+
+  // Hero / mini controls
+  $('heroPlayBtn').addEventListener('click', (e)=>{ e.stopPropagation(); togglePlay(); });
+  $('heroCard').addEventListener('click', ()=>{ if(currentIndex===-1) loadTrack(0,true); else togglePlay(); });
+  document.getElementById('miniPlayer').querySelector('#miniPlayBtn').addEventListener('click', togglePlay);
+  document.getElementById('miniPlayer').querySelector('#miniPrevBtn').addEventListener('click', playPrev);
+  $('radioCard0').addEventListener('click', ()=> loadTrack(0,true));
+  $('radioCard1').addEventListener('click', ()=> loadTrack(1,true));
+
+  // Bottom nav
+  document.querySelectorAll('.nav-item').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const target = btn.dataset.screen;
+      document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+      $('screen-'+target).classList.add('active');
+    });
+  });
+
+  // Search input
+  $('searchInput').addEventListener('input', renderSearch);
+
+  // Add track via URL -> disimpan ke tabel `tracks` di Supabase
+  $('addUrlBtn').addEventListener('click', async ()=>{
+    const url = $('urlInput').value.trim();
+    if(!url || !currentUserId) return;
+    const btn = $('addUrlBtn');
+    const name = url.split('/').pop().split('?')[0].replace(/\.[^/.]+$/,'') || 'Trek baru';
+    btn.disabled = true; btn.textContent = 'Menambahkan…';
+    const { data, error } = await window.sb.from('tracks').insert({
+      user_id: currentUserId, title: name, artist: 'Ditambahkan dari URL', url: url
+    }).select().single();
+    btn.disabled = false; btn.textContent = '+ Tambah dari URL';
+    if(error){ alert('Gagal menambah trek: ' + error.message); return; }
+    tracks.push({ id: data.id, title: data.title, artist: data.artist, src: data.url, storage_path: data.storage_path });
+    $('urlInput').value = '';
+    renderAll();
+    if(currentIndex===-1) loadTrack(tracks.length-1,false);
+  });
+
+  // Upload file -> naik ke Supabase Storage (bucket "audio"), lalu dicatat di tabel `tracks`
+  $('uploadBtn').addEventListener('click', ()=> $('libFileInput').click());
+  $('libFileInput').addEventListener('change', async ()=>{
+    if(!currentUserId) return;
+    const files = Array.from($('libFileInput').files);
+    const btn = $('uploadBtn');
+    for(const file of files){
+      btn.textContent = 'Mengunggah ' + file.name + '…';
+      const path = `${currentUserId}/${Date.now()}-${file.name}`;
+      const { error: upErr } = await window.sb.storage.from('audio').upload(path, file);
+      if(upErr){ alert('Gagal mengunggah ' + file.name + ': ' + upErr.message); continue; }
+      const { data: urlData } = window.sb.storage.from('audio').getPublicUrl(path);
+      const { data, error } = await window.sb.from('tracks').insert({
+        user_id: currentUserId,
+        title: file.name.replace(/\.[^/.]+$/,''),
+        artist: 'File lokal',
+        url: urlData.publicUrl,
+        storage_path: path
+      }).select().single();
+      if(error){ alert('Gagal menyimpan data trek: ' + error.message); continue; }
+      tracks.push({ id: data.id, title: data.title, artist: data.artist, src: data.url, storage_path: data.storage_path });
+    }
+    btn.textContent = '↑ Unggah file dari perangkat';
+    renderAll();
+    $('libFileInput').value = '';
+  });
+
+  async function removeTrack(i){
+    const t = tracks[i];
+    const wasCurrent = i===currentIndex;
+    tracks.splice(i,1);
+    if(wasCurrent){ audio.pause(); audio.src=''; currentIndex=-1; isPlaying=false; }
+    else if(i<currentIndex) currentIndex -= 1;
+    renderAll();
+    if(t && t.id && window.sb){
+      await window.sb.from('tracks').delete().eq('id', t.id);
+      if(t.storage_path){ await window.sb.storage.from('audio').remove([t.storage_path]); }
+    }
+  }
+
+  // Profile menu overlay
+  function openMenu(){ $('menuOverlay').classList.add('open'); }
+  function closeMenu(){ $('menuOverlay').classList.remove('open'); }
+  $('avatarBtn').addEventListener('click', openMenu);
+  $('libAvatarBtn').addEventListener('click', openMenu);
+  $('menuCloseBtn').addEventListener('click', closeMenu);
+  $('menuOverlay').addEventListener('click', (e)=>{ if(e.target.id==='menuOverlay') closeMenu(); });
+  $('menuRecentBtn').addEventListener('click', ()=>{
+    closeMenu();
+    document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+    document.querySelector('.nav-item[data-screen="home"]').classList.add('active');
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    $('screen-home').classList.add('active');
+  });
+
+  // Dipanggil dari script auth setelah login berhasil, dengan trek milik user dari Supabase
+  window.__audioraInit = function(initialTracks, userId){
+    tracks = initialTracks || [];
+    currentUserId = userId || null;
+    currentIndex = -1;
+    isPlaying = false;
+    audio.pause();
+    audio.src = '';
+    renderAll();
+  };
+})();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+
+  // =====================================================================
+  // ISI DUA NILAI INI dengan milik proyek Supabase kamu sendiri.
+  // Ambil dari: Supabase Dashboard → Project Settings → API
+  //   - "Project URL"      -> SUPABASE_URL
+  //   - "anon public" key  -> SUPABASE_ANON_KEY
+  // Keduanya AMAN dipakai di kode frontend (anon key memang untuk publik,
+  // akses data tetap dibatasi lewat Row Level Security di sisi Supabase).
+  // =====================================================================
+  const SUPABASE_URL = "https://xxxxxxxxxxxx.supabase.co";
+  const SUPABASE_ANON_KEY = "TEMPEL_ANON_KEY_DI_SINI";
+
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  window.sb = supabase; // dipakai juga oleh script pemutar musik untuk CRUD trek
+
+  function showError(el, msg){ el.textContent = msg; el.classList.add('show'); }
+  function hideError(el){ el.classList.remove('show'); el.textContent = ''; }
+  function initials(name){ return (name || '?').trim().charAt(0).toUpperCase() || '?'; }
+
+  async function fetchTracks(userId){
+    const { data, error } = await supabase
+      .from('tracks')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: true });
+    if(error){ console.error('Gagal memuat trek:', error.message); return []; }
+    return data.map(row => ({ id: row.id, title: row.title, artist: row.artist, src: row.url, storage_path: row.storage_path }));
+  }
+
+  async function enterApp(session){
+    const user = session.user;
+    const name = user.user_metadata?.name || user.email.split('@')[0];
+    const letter = initials(name);
+    $('authScreen').style.display = 'none';
+    $('phoneShell').style.display = 'flex';
+    $('avatarBtn').textContent = letter;
+    $('libAvatarBtn').textContent = letter;
+    $('menuAvatar').textContent = letter;
+    $('menuName').textContent = name;
+    $('menuEmail').textContent = user.email;
+    const userTracks = await fetchTracks(user.id);
+    if(window.__audioraInit) window.__audioraInit(userTracks, user.id);
+  }
+
+  function backToAuth(){
+    $('phoneShell').style.display = 'none';
+    $('authScreen').style.display = 'flex';
+    $('menuOverlay').classList.remove('open');
+    if(window.__audioraInit) window.__audioraInit([], null);
+  }
+
+  // ---- Tab switching ----
+  function showLogin(){
+    $('tabLogin').classList.add('active');
+    $('tabRegister').classList.remove('active');
+    $('loginForm').style.display = 'block';
+    $('registerForm').style.display = 'none';
+    hideError($('loginError')); hideError($('registerError'));
+  }
+  function showRegister(){
+    $('tabRegister').classList.add('active');
+    $('tabLogin').classList.remove('active');
+    $('registerForm').style.display = 'block';
+    $('loginForm').style.display = 'none';
+    hideError($('loginError')); hideError($('registerError'));
+  }
+  $('tabLogin').addEventListener('click', showLogin);
+  $('tabRegister').addEventListener('click', showRegister);
+  $('goRegister').addEventListener('click', showRegister);
+  $('goLogin').addEventListener('click', showLogin);
+
+  function setSubmitting(form, submitting){
+    const btn = form.querySelector('.auth-submit');
+    btn.disabled = submitting;
+    btn.textContent = submitting ? 'Memproses…' : (form.id === 'loginForm' ? 'Masuk' : 'Daftar');
+  }
+
+  // ---- Register (Supabase Auth) ----
+  $('registerForm').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const errEl = $('registerError');
+    hideError(errEl);
+    const name = $('regName').value.trim();
+    const email = $('regEmail').value.trim().toLowerCase();
+    const pass = $('regPassword').value;
+    const pass2 = $('regPassword2').value;
+
+    if(!name || !email || !pass || !pass2){ showError(errEl, 'Semua kolom wajib diisi.'); return; }
+    if(pass.length < 6){ showError(errEl, 'Kata sandi minimal 6 karakter.'); return; }
+    if(pass !== pass2){ showError(errEl, 'Konfirmasi kata sandi tidak cocok.'); return; }
+
+    setSubmitting($('registerForm'), true);
+    const { data, error } = await supabase.auth.signUp({
+      email, password: pass,
+      options: { data: { name } }
+    });
+    setSubmitting($('registerForm'), false);
+
+    if(error){ showError(errEl, error.message); return; }
+
+    if(data.session){
+      // Konfirmasi email dimatikan di project Supabase -> langsung masuk
+      enterApp(data.session);
+    } else {
+      // Konfirmasi email masih aktif -> minta user cek inbox
+      showError(errEl, 'Akun dibuat. Cek email kamu untuk konfirmasi, lalu masuk di sini.');
+      errEl.style.color = '#f3d089';
+      showLogin();
+    }
+  });
+
+  // ---- Login (Supabase Auth) ----
+  $('loginForm').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const errEl = $('loginError');
+    hideError(errEl);
+    const email = $('loginEmail').value.trim().toLowerCase();
+    const pass = $('loginPassword').value;
+    if(!email || !pass){ showError(errEl, 'Isi email dan kata sandi.'); return; }
+
+    setSubmitting($('loginForm'), true);
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
+    setSubmitting($('loginForm'), false);
+
+    if(error){ showError(errEl, error.message === 'Invalid login credentials' ? 'Email atau kata sandi salah.' : error.message); return; }
+    enterApp(data.session);
+  });
+
+  // ---- Logout ----
+  $('logoutBtn').addEventListener('click', async ()=>{
+    await supabase.auth.signOut();
+    backToAuth();
+    $('loginForm').reset();
+  });
+
+  // ---- Sesi otomatis: cek saat load, dan dengarkan perubahan (mis. token refresh) ----
+  supabase.auth.onAuthStateChange((event, session)=>{
+    if(event === 'SIGNED_OUT'){ backToAuth(); }
+  });
+
+  (async function checkSession(){
+    const { data } = await supabase.auth.getSession();
+    if(data.session){ enterApp(data.session); }
+    else { backToAuth(); }
+  })();
+})();
+</script>
+</body>
+</html>
